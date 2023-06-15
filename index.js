@@ -7,14 +7,8 @@ const nodemailer = require("nodemailer");
 const mg = require("nodemailer-mailgun-transport");
 const port = process.env.PORT || 3000;
 require("dotenv").config();
-const { Configuration, OpenAIApi } = require("openai");
 
 const stripe = require("stripe")(process.env.STRIPE_KEY);
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
 
 //middleware
 app.use(cors());
@@ -41,14 +35,6 @@ function sendBookingEmail(booking) {
   };
 
   const transporter = nodemailer.createTransport(mg(auth));
-  //   let transporter = nodemailer.createTransport({
-  //     host: 'smtp.sendgrid.net',
-  //     port: 587,
-  //     auth: {
-  //         user: "apikey",
-  //         pass: process.env.SENDGRID_API_KEY
-  //     }
-  //  })
 
   transporter.sendMail(
     {
@@ -121,22 +107,6 @@ async function run() {
 
       next();
     };
-
-    // app.post("/api/chat", async (req, res) => {
-    //   const { message } = req.body;
-
-    //   // Call OpenAI API to get AI response based on user message
-    //   // Replace 'YOUR_API_KEY' with your actual OpenAI API key
-    //   const response = await openai.createCompletion({
-    //     engine: "davinci",
-    //     prompt: message,
-    //     maxTokens: 100,
-    //   });
-
-    //   const aiResponse = response.data.choices[0].text;
-
-    //   res.json({ message: aiResponse });
-    // });
 
     app.post("/payments", async (req, res) => {
       const payment = req.body;
@@ -330,18 +300,6 @@ async function run() {
       res.send(result);
     });
 
-    // app.get('/addprice' , async(req, res)=>{
-    //     const filter={}
-    //     const options={upsert:true}
-    //     const updateDoc = {
-    //       $set: {
-    //         price: 99
-    //       }
-    //     }
-    //     const result= await appointmentOptionCollection.updateMany(filter, updateDoc, options)
-    //     res.send(result)
-    // })
-
     app.post("/doctorsDetails", verifyJWT, verifyAdmin, async (req, res) => {
       const doctors = req.body;
       const result = await doctorsCollection.insertOne(doctors);
@@ -365,7 +323,6 @@ async function run() {
         res.send(result);
       }
     );
-    // chat AI
 
     app.post("/create-payment-intent", async (req, res) => {
       const booking = req.body;
